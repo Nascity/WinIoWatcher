@@ -11,14 +11,12 @@ DriverUnload(
 )
 {
 	PDEVICE_EXTENSION	Ext;
-	UNICODE_STRING		SymlinkName = RTL_CONSTANT_STRING(SYMLINK_NAME);
 
 	Ext = DriverObject->DeviceObject->DeviceExtension;
 
 	if (Ext->LowerDeviceObject)
 		IoDetachDevice(Ext->LowerDeviceObject);
 	IoDeleteDevice(DriverObject->DeviceObject);
-	IoDeleteSymbolicLink(&SymlinkName);
 
 	WINIOWATCHER_Cleanup();
 
@@ -34,24 +32,31 @@ DriverEntry(
 	PDEVICE_EXTENSION	Ext;
 
 	UNICODE_STRING		DeviceName = RTL_CONSTANT_STRING(DEVICE_NAME);
-	UNICODE_STRING		SymlinkName = RTL_CONSTANT_STRING(SYMLINK_NAME);
 	UNICODE_STRING		TargetDeviceName = RTL_CONSTANT_STRING(TARGET_DEVICE_NAME);
 
 	PDEVICE_OBJECT		DeviceObject;
 	PDEVICE_OBJECT		LowerDeviceObject;
 	PDEVICE_OBJECT		TopDeviceObject;
 	PDEVICE_OBJECT		TargetDeviceObject;
-
 	PFILE_OBJECT		FileObject;
-	NTSTATUS			Status = STATUS_SUCCESS;
+
+	NTSTATUS	Status = STATUS_SUCCESS;
+	INT			i;
 	
 	UNREFERENCED_PARAMETER(RegistryPath);
 
 	// Initializing major functions
+	RtlZeroMemory(DriverObject->MajorFunction, sizeof(DriverObject->MajorFunction));
+
 	DriverObject->DriverUnload = DriverUnload;
-	DriverObject->MajorFunction[IRP_MJ_CREATE] = WINIOWATCHER_DispatchCreate;
 	DriverObject->MajorFunction[IRP_MJ_READ] = WINIOWATCHER_DispatchRead;
 	DriverObject->MajorFunction[IRP_MJ_WRITE] = WINIOWATCHER_DispatchWrite;
+
+	for (i = 0; i < IRP_MJ_MAXIMUM_FUNCTION; i++)
+	{
+		if (DriverObject->MajorFunction[i] == NULL)
+			DriverObject->MajorFunction[i] = WINIOWATCHER_DispatchDefault;
+	}
 
 	// Retrieving disk's stack
 	Status = IoGetDeviceObjectPointer(
@@ -62,7 +67,6 @@ DriverEntry(
 	);
 	NAS_ASSERT(Status);
 
-	TargetDeviceObject = FileObject->DeviceObject;
 	ObDereferenceObject(FileObject);
 
 	// Creating device
@@ -77,6 +81,8 @@ DriverEntry(
 	);
 	NAS_ASSERT(Status);
 
+	TargetDeviceObject = IoGetDeviceAttachmentBaseRef(TopDeviceObject);
+
 	// Attaching to the stack
 	Status = IoAttachDeviceToDeviceStackSafe(
 		DeviceObject,
@@ -88,8 +94,6 @@ DriverEntry(
 		IoDeleteDevice(DeviceObject);
 		return STATUS_NO_SUCH_DEVICE;
 	}
-
-	ObDereferenceObject(TopDeviceObject);
 
 	Ext = DeviceObject->DeviceExtension;
 	Ext->LowerDeviceObject = LowerDeviceObject;
@@ -103,17 +107,6 @@ DriverEntry(
 
 	Status = WINIOWATCHER_InitEvent();
 	NAS_ASSERT(Status);
-
-	// Creating symlinks
-	Status = IoCreateSymbolicLink(
-		&SymlinkName,
-		&DeviceName
-	);
-	if (!NT_SUCCESS(Status))
-	{
-		IoDeleteDevice(DeviceObject);
-		return Status;
-	}
 
 	return STATUS_SUCCESS;
 }

@@ -140,10 +140,6 @@ WriteLog(
 		g_SharedMemEventHandle,
 		NULL
 	);
-
-	DbgPrint("[WIW] %lld - IsRead: %d, LBA: %lld, Length: %ld\n",
-		Log->Time, (INT)Log->IsRead, Log->LBA, Log->Length
-	);
 }
 
 VOID
@@ -157,6 +153,10 @@ LoggerHandler(
 	UNREFERENCED_PARAMETER(DeviceObject);
 
 	WinWorkItem = (PWINIOWATCHER_WORK_ITEM)Context;
+
+	if (WinWorkItem->Magic != WORK_ITEM_MAGIC)
+		return;
+
 	WriteLog(&WinWorkItem->Log);
 
 	IoFreeWorkItem(

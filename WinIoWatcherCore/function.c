@@ -6,21 +6,6 @@
 #include "nas_assert.h"
 #include "shared_mem.h"
 
-NTSTATUS
-WINIOWATCHER_DispatchCreate(
-	PDEVICE_OBJECT	DeviceObject,
-	PIRP			Irp
-)
-{
-	UNREFERENCED_PARAMETER(DeviceObject);
-
-	Irp->IoStatus.Status = STATUS_SUCCESS;
-	Irp->IoStatus.Information = 0;
-
-	IoCompleteRequest(Irp, IO_NO_INCREMENT);
-	return STATUS_SUCCESS;
-}
-
 VOID
 MakeWorkItem(
 	PDEVICE_OBJECT	DeviceObject,
@@ -45,7 +30,11 @@ MakeWorkItem(
 	WinWorkItem->Log.Length = Length;
 	WinWorkItem->Log.Time = Time;
 
+	WinWorkItem->Magic = WORK_ITEM_MAGIC;
+
 	WinWorkItem->WorkItem = IoAllocateWorkItem(DeviceObject);
+	if (!WinWorkItem->WorkItem)
+		return;
 
 	IoQueueWorkItem(
 		WinWorkItem->WorkItem,
@@ -53,8 +42,6 @@ MakeWorkItem(
 		DelayedWorkQueue,
 		WinWorkItem
 	);
-
-	DbgPrint("[WIW] Queueing work item...\n");
 }
 
 NTSTATUS
@@ -74,12 +61,18 @@ ReadOrWrite(
 
 	if (IsRead)
 	{
+		if (StackLocation->Parameters.Read.Length <= 0)
+			goto end;
+
 		ByteOffset = StackLocation->Parameters.Read.ByteOffset;
 		Length = StackLocation->Parameters.Read.Length;
 
 	}
 	else
 	{
+		if (StackLocation->Parameters.Write.Length <= 0)
+			goto end;
+
 		ByteOffset = StackLocation->Parameters.Write.ByteOffset;
 		Length = StackLocation->Parameters.Write.Length;
 	}
@@ -93,6 +86,7 @@ ReadOrWrite(
 		Time.QuadPart
 	);
 
+end:
 	IoSkipCurrentIrpStackLocation(Irp);
 
 	return IoCallDriver(
@@ -107,8 +101,6 @@ WINIOWATCHER_DispatchRead(
 	PIRP			Irp
 )
 {
-	DbgPrint("[WIW] DispatchRead.\n");
-
 	return ReadOrWrite(DeviceObject, Irp, TRUE);
 }
 
@@ -118,7 +110,19 @@ WINIOWATCHER_DispatchWrite(
 	PIRP			Irp
 )
 {
-	DbgPrint("[WIW] DispatchWrite.\n");
-
 	return ReadOrWrite(DeviceObject, Irp, FALSE);
+}
+
+NTSTATUS
+WINIOWATCHER_DispatchDefault(
+	PDEVICE_OBJECT	DeviceObject,
+	PIRP			Irp
+)
+{
+	PDEVICE_EXTENSION	Ext;
+
+	Ext = DeviceObject->DeviceExtension;
+
+	IoSkipCurrentIrpStackLocation(Irp);
+	return IoCallDriver(Ext->LowerDeviceObject, Irp);
 }

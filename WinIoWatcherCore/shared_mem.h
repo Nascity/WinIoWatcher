@@ -7,11 +7,13 @@
 #define SHARED_MEM_SIZE		4096
 
 #define WORK_ITEM_TAG		'wiw '
+#define WORK_ITEM_MAGIC		0xDEADCAFE
 
 typedef struct
 {
-	PIO_WORKITEM  		WorkItem;
-	LOG					Log;
+	INT				Magic;
+	PIO_WORKITEM  	WorkItem;
+	LOG				Log;
 }	WINIOWATCHER_WORK_ITEM, *PWINIOWATCHER_WORK_ITEM;
 
 NTSTATUS

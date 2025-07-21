@@ -1,7 +1,6 @@
 #pragma once
 
 #define DEVICE_NAME		L"\\Device\\WinIoWatcherCore"
-#define SYMLINK_NAME	L"\\DosDevices\\WinIoWatcherCore"
 
 #define SHARED_MEM_NAME		L"\\Sessions\\1\\BaseNamedObjects\\WinIoWatcherSharedMem"
 #define EVENT_NAME			L"\\Sessions\\1\\BaseNamedObjects\\WinIoWatcherEvent"
