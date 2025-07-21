@@ -96,7 +96,7 @@ ReadOrWrite(
 	IoSkipCurrentIrpStackLocation(Irp);
 
 	return IoCallDriver(
-		((PDEVICE_EXTENSION)DeviceObject->DeviceExtension)->NextLayerDeviceObject,
+		((PDEVICE_EXTENSION)DeviceObject->DeviceExtension)->LowerDeviceObject,
 		Irp
 	);
 }

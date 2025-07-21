@@ -1,9 +1,7 @@
 #pragma once
 
-typedef struct
-{
-	PDEVICE_OBJECT	NextLayerDeviceObject;
-	PDEVICE_OBJECT 	PhysicalDeviceObject;
-	PDEVICE_OBJECT 	DeviceObject;
-	UNICODE_STRING	UnicodeString;
-}	DEVICE_EXTENSION, *PDEVICE_EXTENSION;
+#define TARGET_DEVICE_NAME  L"\\Device\\HarddiskVolume3"
+
+typedef struct _DEVICE_EXTENSION {
+    PDEVICE_OBJECT  LowerDeviceObject;
+}   DEVICE_EXTENSION, *PDEVICE_EXTENSION;

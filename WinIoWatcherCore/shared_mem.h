@@ -4,9 +4,6 @@
 
 #include "../common.h"
 
-#define SHARED_MEM_NAME		L"\\Sessions\\1\\BaseNamedObjects\\WinIoWatcherSharedMem"
-#define EVENT_NAME			L"\\Sessions\\1\\BaseNamedObjects\\WinIoWatcherEvent"
-
 #define SHARED_MEM_SIZE		4096
 
 #define WORK_ITEM_TAG		'wiw '

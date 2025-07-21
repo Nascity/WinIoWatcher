@@ -5,6 +5,13 @@ VisualStudioVersion = 17.14.36301.6 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinIoWatcherCore", "WinIoWatcherCore\WinIoWatcherCore.vcxproj", "{791708A0-164E-26E0-255B-401CC03F766E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		common.h = common.h
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinIoWatcher", "WinIoWatcher\WinIoWatcher.vcxproj", "{20CCB7D1-8CCB-475F-8FA8-562AA16951C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -25,6 +32,14 @@ Global
 		{791708A0-164E-26E0-255B-401CC03F766E}.Release|x64.ActiveCfg = Release|x64
 		{791708A0-164E-26E0-255B-401CC03F766E}.Release|x64.Build.0 = Release|x64
 		{791708A0-164E-26E0-255B-401CC03F766E}.Release|x64.Deploy.0 = Release|x64
+		{20CCB7D1-8CCB-475F-8FA8-562AA16951C9}.Debug|ARM64.ActiveCfg = Debug|x64
+		{20CCB7D1-8CCB-475F-8FA8-562AA16951C9}.Debug|ARM64.Build.0 = Debug|x64
+		{20CCB7D1-8CCB-475F-8FA8-562AA16951C9}.Debug|x64.ActiveCfg = Debug|x64
+		{20CCB7D1-8CCB-475F-8FA8-562AA16951C9}.Debug|x64.Build.0 = Debug|x64
+		{20CCB7D1-8CCB-475F-8FA8-562AA16951C9}.Release|ARM64.ActiveCfg = Release|x64
+		{20CCB7D1-8CCB-475F-8FA8-562AA16951C9}.Release|ARM64.Build.0 = Release|x64
+		{20CCB7D1-8CCB-475F-8FA8-562AA16951C9}.Release|x64.ActiveCfg = Release|x64
+		{20CCB7D1-8CCB-475F-8FA8-562AA16951C9}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
