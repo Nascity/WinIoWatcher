@@ -49,8 +49,8 @@ DriverEntry(
 	RtlZeroMemory(DriverObject->MajorFunction, sizeof(DriverObject->MajorFunction));
 
 	DriverObject->DriverUnload = DriverUnload;
-	DriverObject->MajorFunction[IRP_MJ_READ] = WINIOWATCHER_DispatchRead;
-	DriverObject->MajorFunction[IRP_MJ_WRITE] = WINIOWATCHER_DispatchWrite;
+	//DriverObject->MajorFunction[IRP_MJ_READ] = WINIOWATCHER_DispatchRead;
+	//DriverObject->MajorFunction[IRP_MJ_WRITE] = WINIOWATCHER_DispatchWrite;
 
 	for (i = 0; i < IRP_MJ_MAXIMUM_FUNCTION; i++)
 	{
