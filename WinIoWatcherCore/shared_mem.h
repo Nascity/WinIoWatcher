@@ -6,7 +6,7 @@
 
 #define SHARED_MEM_SIZE		4096
 
-#define WORK_ITEM_TAG		'wiw '
+#define WORK_ITEM_TAG		'wiwt'
 #define WORK_ITEM_MAGIC		0xDEADCAFE
 
 typedef struct

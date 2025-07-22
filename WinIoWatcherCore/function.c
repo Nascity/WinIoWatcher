@@ -33,8 +33,11 @@ MakeWorkItem(
 	WinWorkItem->Magic = WORK_ITEM_MAGIC;
 
 	WinWorkItem->WorkItem = IoAllocateWorkItem(DeviceObject);
-	if (!WinWorkItem->WorkItem)
+
+	if (!WinWorkItem->WorkItem) {
+		ExFreePoolWithTag(WinWorkItem, WORK_ITEM_TAG);
 		return;
+	}
 
 	IoQueueWorkItem(
 		WinWorkItem->WorkItem,
@@ -44,7 +47,7 @@ MakeWorkItem(
 	);
 }
 
-NTSTATUS
+VOID
 ReadOrWrite(
 	PDEVICE_OBJECT	DeviceObject,
 	PIRP			Irp,
@@ -59,19 +62,21 @@ ReadOrWrite(
 
 	KeQuerySystemTime(&Time);
 
+	if (!StackLocation->FileObject)
+		return;
+
 	if (IsRead)
 	{
 		if (StackLocation->Parameters.Read.Length <= 0)
-			goto end;
+			return;
 
 		ByteOffset = StackLocation->Parameters.Read.ByteOffset;
 		Length = StackLocation->Parameters.Read.Length;
-
 	}
 	else
 	{
 		if (StackLocation->Parameters.Write.Length <= 0)
-			goto end;
+			return;
 
 		ByteOffset = StackLocation->Parameters.Write.ByteOffset;
 		Length = StackLocation->Parameters.Write.Length;
@@ -85,14 +90,6 @@ ReadOrWrite(
 		Length,
 		Time.QuadPart
 	);
-
-end:
-	IoSkipCurrentIrpStackLocation(Irp);
-
-	return IoCallDriver(
-		((PDEVICE_EXTENSION)DeviceObject->DeviceExtension)->LowerDeviceObject,
-		Irp
-	);
 }
 
 NTSTATUS
@@ -101,7 +98,20 @@ WINIOWATCHER_DispatchRead(
 	PIRP			Irp
 )
 {
-	return ReadOrWrite(DeviceObject, Irp, TRUE);
+	PDEVICE_EXTENSION	Ext;
+	PDEVICE_OBJECT		Lower;
+
+	Ext = DeviceObject->DeviceExtension;
+	Lower = Ext->LowerDeviceObject;
+
+	if (Irp->Flags & IRP_PAGING_IO
+		|| Irp->Flags & IRP_SYNCHRONOUS_PAGING_IO)
+		goto read_end;
+	ReadOrWrite(DeviceObject, Irp, TRUE);
+
+read_end:
+	IoSkipCurrentIrpStackLocation(Irp);
+	return IoCallDriver(Lower, Irp);
 }
 
 NTSTATUS
@@ -110,7 +120,20 @@ WINIOWATCHER_DispatchWrite(
 	PIRP			Irp
 )
 {
-	return ReadOrWrite(DeviceObject, Irp, FALSE);
+	PDEVICE_EXTENSION	Ext;
+	PDEVICE_OBJECT		Lower;
+
+	Ext = DeviceObject->DeviceExtension;
+	Lower = Ext->LowerDeviceObject;
+
+	if (Irp->Flags & IRP_PAGING_IO
+		|| Irp->Flags & IRP_SYNCHRONOUS_PAGING_IO)
+		goto write_end;
+	ReadOrWrite(DeviceObject, Irp, FALSE);
+
+write_end:
+	IoSkipCurrentIrpStackLocation(Irp);
+	return IoCallDriver(Lower, Irp);
 }
 
 NTSTATUS

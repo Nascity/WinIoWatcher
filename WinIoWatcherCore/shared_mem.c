@@ -127,7 +127,7 @@ WriteLog(
 
 	RtlZeroMemory(
 		g_SharedMemAddress,
-		SHARED_MEM_SIZE
+		sizeof(LOG)
 	);
 
 	RtlCopyMemory(
