@@ -93,47 +93,19 @@ ReadOrWrite(
 }
 
 NTSTATUS
-WINIOWATCHER_DispatchRead(
+WINIOWATCHER_DispatchSCSI(
 	PDEVICE_OBJECT	DeviceObject,
 	PIRP			Irp
 )
 {
 	PDEVICE_EXTENSION	Ext;
-	PDEVICE_OBJECT		Lower;
 
 	Ext = DeviceObject->DeviceExtension;
-	Lower = Ext->LowerDeviceObject;
 
-	if (Irp->Flags & IRP_PAGING_IO
-		|| Irp->Flags & IRP_SYNCHRONOUS_PAGING_IO)
-		goto read_end;
-	ReadOrWrite(DeviceObject, Irp, TRUE);
+	//ReadOrWrite(DeviceObject, Irp, TRUE);
 
-read_end:
 	IoSkipCurrentIrpStackLocation(Irp);
-	return IoCallDriver(Lower, Irp);
-}
-
-NTSTATUS
-WINIOWATCHER_DispatchWrite(
-	PDEVICE_OBJECT	DeviceObject,
-	PIRP			Irp
-)
-{
-	PDEVICE_EXTENSION	Ext;
-	PDEVICE_OBJECT		Lower;
-
-	Ext = DeviceObject->DeviceExtension;
-	Lower = Ext->LowerDeviceObject;
-
-	if (Irp->Flags & IRP_PAGING_IO
-		|| Irp->Flags & IRP_SYNCHRONOUS_PAGING_IO)
-		goto write_end;
-	ReadOrWrite(DeviceObject, Irp, FALSE);
-
-write_end:
-	IoSkipCurrentIrpStackLocation(Irp);
-	return IoCallDriver(Lower, Irp);
+	return IoCallDriver(Ext->LowerDeviceObject, Irp);
 }
 
 NTSTATUS

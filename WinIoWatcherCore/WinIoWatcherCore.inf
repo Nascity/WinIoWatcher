@@ -1,0 +1,37 @@
+[Version]
+Signature   = "$Windows NT$"
+Class       = DiskDrive
+ClassGuid   = {4D36E967-E325-11CE-BFC1-08002BE10318}
+Provider    = Nascity
+CatalogFile	= WinIoWatcherCore.cat
+DriverVer   = 07/20/2025,1.0.0.0
+PnPLockdown	= 1
+
+[DefaultInstall.ntamd64]
+CopyFiles	= @WinIoWatcherCore.sys
+AddReg		= LowerFilterReg
+
+[DefaultInstall.ntamd64.Services]
+AddService	= WinIoWatcher, 0x00000002, WinIoWatcherService
+
+[LowerFilterReg]
+HKLM,"System\CurrentControlSet\Control\Class\{4D36E967-E325-11CE-BFC1-08002BE10318}","LowerFilters",0x00010008,"WinIoWatcher"
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+[WinIoWatcherService]
+DisplayName		= "WinIoWatcher"
+ServiceType		= 1
+StartType		= 0
+ErrorControl	= 1
+ServiceBinary	= %12%\WinIoWatcherCore.sys
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+WinIoWatcherCore.sys = 1
+
+[Strings]
+DiskName = "WinIoWatcher Installation Media"
