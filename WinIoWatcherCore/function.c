@@ -1,4 +1,5 @@
 #include <ntddk.h>
+#include <storport.h>
 #include <wdm.h>
 
 #include "driver.h"
@@ -50,39 +51,23 @@ MakeWorkItem(
 VOID
 ReadOrWrite(
 	PDEVICE_OBJECT	DeviceObject,
-	PIRP			Irp,
-	BOOLEAN			IsRead
+	PIRP			Irp
 )
 {
-	PIO_STACK_LOCATION	StackLocation = IoGetCurrentIrpStackLocation(Irp);
-	LARGE_INTEGER		ByteOffset;
-	LARGE_INTEGER		Time;
-	ULONGLONG			LBA;
-	ULONG				Length;
+	PSCSI_REQUEST_BLOCK		SRB;
+	PIO_STACK_LOCATION		StackLocation = IoGetCurrentIrpStackLocation(Irp);
+	
+	LARGE_INTEGER	Time;
+	BOOLEAN			IsRead;
+
+	UNREFERENCED_PARAMETER(DeviceObject);
+	UNREFERENCED_PARAMETER(IsRead);
 
 	KeQuerySystemTime(&Time);
 
-	if (!StackLocation->FileObject)
-		return;
-
-	if (IsRead)
-	{
-		if (StackLocation->Parameters.Read.Length <= 0)
-			return;
-
-		ByteOffset = StackLocation->Parameters.Read.ByteOffset;
-		Length = StackLocation->Parameters.Read.Length;
-	}
-	else
-	{
-		if (StackLocation->Parameters.Write.Length <= 0)
-			return;
-
-		ByteOffset = StackLocation->Parameters.Write.ByteOffset;
-		Length = StackLocation->Parameters.Write.Length;
-	}
-	LBA = ByteOffset.QuadPart / 512;
-
+	SRB = StackLocation->Parameters.Scsi.Srb;
+	
+	/*
 	MakeWorkItem(
 		DeviceObject,
 		IsRead,
@@ -90,6 +75,7 @@ ReadOrWrite(
 		Length,
 		Time.QuadPart
 	);
+	*/
 }
 
 NTSTATUS
@@ -102,10 +88,42 @@ WINIOWATCHER_DispatchSCSI(
 
 	Ext = DeviceObject->DeviceExtension;
 
-	//ReadOrWrite(DeviceObject, Irp, TRUE);
+	ReadOrWrite(DeviceObject, Irp);
 
 	IoSkipCurrentIrpStackLocation(Irp);
 	return IoCallDriver(Ext->LowerDeviceObject, Irp);
+}
+
+PIO_WORKITEM	WorkItem;
+
+NTSTATUS
+WINIOWATCHER_DispatchIoctl(
+	PDEVICE_OBJECT	DeviceObject,
+	PIRP			Irp
+)
+{
+	PIO_STACK_LOCATION	StackLocation = IoGetCurrentIrpStackLocation(Irp);
+	NTSTATUS			Status = STATUS_SUCCESS;
+
+	UNREFERENCED_PARAMETER(DeviceObject);
+
+	switch (StackLocation->Parameters.DeviceIoControl.IoControlCode)
+	{
+	case IOCTL_WINIOWATCHER_INIT:
+		WorkItem = IoAllocateWorkItem(DeviceObject);
+		if (!WorkItem)
+		{
+			Status = STATUS_INSUFFICIENT_RESOURCES;
+			break;
+		}
+		IoQueueWorkItem(WorkItem, InitializingWorker, DelayedWorkQueue, WorkItem);
+		break;
+	default:
+		Status = STATUS_UNSUCCESSFUL;
+		break;
+	}
+
+	return Status;
 }
 
 NTSTATUS

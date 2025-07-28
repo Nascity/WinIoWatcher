@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <Windows.h>
 
+#include "device.h"
 #include "logfile.h"
 #include "shared_mem.h"
 
@@ -20,6 +21,13 @@ Init(
 	VOID
 )
 {
+	if (!InitDeviceDriver())
+	{
+		wprintf(L"InitDeviceDriver Failed with %d\n", GetLastError());
+		return FALSE;
+	}
+	wprintf(L"InitDeviceDriver.\n");
+
 	if (!InitSharedMem())
 	{
 		wprintf(L"InitSharedMem Failed with %d\n", GetLastError());

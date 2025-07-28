@@ -168,3 +168,23 @@ LoggerHandler(
 		WORK_ITEM_TAG
 	);
 }
+
+VOID
+InitializingWorker(
+	PDEVICE_OBJECT	DeviceObject,
+	PVOID			Context
+)
+{
+	PIO_WORKITEM	WorkItem;
+
+	UNREFERENCED_PARAMETER(DeviceObject);
+	UNREFERENCED_PARAMETER(Context);
+
+	WorkItem = (PIO_WORKITEM)Context;
+
+	// Initializing
+	WINIOWATCHER_InitSharedMemory();
+	WINIOWATCHER_InitEvent();
+
+	IoFreeWorkItem(WorkItem);
+}

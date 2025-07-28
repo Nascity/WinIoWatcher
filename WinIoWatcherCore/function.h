@@ -7,6 +7,12 @@ WINIOWATCHER_DispatchSCSI(
 );
 
 NTSTATUS
+WINIOWATCHER_DispatchIoctl(
+	PDEVICE_OBJECT	DeviceObject,
+	PIRP			Irp
+);
+
+NTSTATUS
 WINIOWATCHER_DispatchDefault(
 	PDEVICE_OBJECT	DeviceObject,
 	PIRP			Irp

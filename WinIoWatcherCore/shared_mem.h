@@ -36,3 +36,9 @@ LoggerHandler(
 	PDEVICE_OBJECT	DeviceObject,
 	PVOID			Context
 );
+
+VOID
+InitializingWorker(
+	PDEVICE_OBJECT	DeviceObject,
+	PVOID			Context
+);

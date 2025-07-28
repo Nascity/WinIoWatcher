@@ -12,7 +12,7 @@ CopyFiles	= @WinIoWatcherCore.sys
 AddReg		= LowerFilterReg
 
 [DefaultInstall.ntamd64.Services]
-AddService	= WinIoWatcher, 0x00000002, WinIoWatcherService
+AddService	= WinIoWatcher, 0x00000000, WinIoWatcherService
 
 [LowerFilterReg]
 HKLM,"System\CurrentControlSet\Control\Class\{4D36E967-E325-11CE-BFC1-08002BE10318}","LowerFilters",0x00010008,"WinIoWatcher"

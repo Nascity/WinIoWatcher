@@ -47,18 +47,12 @@ AddDevice(
 		DeviceObject,
 		PhysicalDeviceObject
 	);
+	if (!LowerDeviceObject)
+		return STATUS_NO_SUCH_DEVICE;
 
 	((PDEVICE_EXTENSION)DeviceObject->DeviceExtension)->LowerDeviceObject = LowerDeviceObject;
 
-	// Initializing
-	Status = WINIOWATCHER_InitSharedMemory();
-	NAS_ASSERT(Status);
-
-	Status = WINIOWATCHER_InitEvent();
-	NAS_ASSERT(Status);
-
-	DeviceObject->Flags |= DO_POWER_PAGABLE;
-	DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
+	DeviceObject->Flags = LowerDeviceObject->Flags;
 
 	return STATUS_SUCCESS;
 }
@@ -69,7 +63,7 @@ DriverEntry(
 	PUNICODE_STRING	RegistryPath
 )
 {
-	INT			i;
+	INT		i;
 	
 	UNREFERENCED_PARAMETER(RegistryPath);
 
@@ -78,8 +72,9 @@ DriverEntry(
 	DriverObject->DriverUnload = DriverUnload;
 	DriverObject->DriverExtension->AddDevice = AddDevice;
 	DriverObject->MajorFunction[IRP_MJ_SCSI] = WINIOWATCHER_DispatchSCSI;
+	DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = WINIOWATCHER_DispatchIoctl;
 
-	for (i = 0; i < IRP_MJ_MAXIMUM_FUNCTION; i++)
+	for (i = 0; i <= IRP_MJ_MAXIMUM_FUNCTION; i++)
 	{
 		if (DriverObject->MajorFunction[i] == NULL)
 			DriverObject->MajorFunction[i] = WINIOWATCHER_DispatchDefault;
