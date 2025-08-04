@@ -24,12 +24,18 @@
     <ClCompile Include="logfile.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="device.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shared_mem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="logfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

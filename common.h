@@ -1,6 +1,12 @@
 #pragma once
 
+#ifdef KERNEL
+#include <wdm.h>
+#endif
+
+#ifdef USERLAND
 #include <winioctl.h>
+#endif
 
 #define DEVICE_NAME		L"\\Device\\WinIoWatcherCore"
 
@@ -16,6 +22,6 @@ typedef struct
 {
 	unsigned char		IsRead;
 	unsigned long long	LBA;
-	unsigned long		Length;
+	unsigned long long	Length;
 	unsigned long long	Time;
 }	LOG, *PLOG;

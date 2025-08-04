@@ -69,7 +69,7 @@ wmain(
 		ReadLog(&log);
 
 		wprintf(
-			L"%lld,%lld,%ld,%d",
+			L"%lld,%lld,%lld,%d",
 			log.Time, log.LBA,
 			log.Length, (INT)log.IsRead
 		);

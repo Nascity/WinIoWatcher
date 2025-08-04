@@ -43,7 +43,7 @@ WriteLog(
 	swprintf(
 		szBuffer,
 		1024,
-		L"%lld,%lld,%ld,%d",
+		L"%lld,%lld,%lld,%d",
 		pLog->Time, pLog->LBA,
 		pLog->Length, (INT)pLog->IsRead
 	);

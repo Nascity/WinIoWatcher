@@ -123,11 +123,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="device.c" />
     <ClCompile Include="logfile.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="shared_mem.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="device.h" />
     <ClInclude Include="logfile.h" />
     <ClInclude Include="shared_mem.h" />
   </ItemGroup>

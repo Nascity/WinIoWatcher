@@ -28,6 +28,7 @@ AddDevice(
 )
 {
 	UNICODE_STRING	DeviceName = RTL_CONSTANT_STRING(DEVICE_NAME);
+	UNICODE_STRING	SymbolicLinkName = RTL_CONSTANT_STRING(SYMBOLIC_LINK_NAME);
 	PDEVICE_OBJECT	DeviceObject;
 	PDEVICE_OBJECT	LowerDeviceObject;
 	NTSTATUS		Status;
@@ -40,6 +41,12 @@ AddDevice(
 		0,
 		FALSE,
 		&DeviceObject
+	);
+	NAS_ASSERT(Status);
+
+	Status = IoCreateSymbolicLink(
+		&SymbolicLinkName,
+		&DeviceName
 	);
 	NAS_ASSERT(Status);
 

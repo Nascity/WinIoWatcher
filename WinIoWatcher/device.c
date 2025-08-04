@@ -1,5 +1,6 @@
 #include <Windows.h>
 
+#define USERLAND
 #include "../common.h"
 
 BOOL

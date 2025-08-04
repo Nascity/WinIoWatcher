@@ -1,5 +1,7 @@
 #include <ntifs.h>
 
+#define KERNEL
+
 #include "../common.h"
 #include "nas_assert.h"
 #include "shared_mem.h"
