@@ -43,9 +43,9 @@ WriteLog(
 	swprintf(
 		szBuffer,
 		1024,
-		L"%lld,%lld,%lld,%d",
+		L"%lld,%lld,%lld,%d\n",
 		pLog->Time, pLog->LBA,
-		pLog->Length, (INT)pLog->IsRead
+		pLog->Length, (INT)pLog->IsRead & 0x1
 	);
 
 	WriteFile(

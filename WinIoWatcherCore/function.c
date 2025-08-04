@@ -17,81 +17,69 @@ GetOpcodeAndLBA(
 {
 	LARGE_INTEGER	Offset;
 	UINT8			Opcode;
+	PCDB			CDB;
 
-	Offset.QuadPart = 0;
 	*Length = 0;
-	Opcode = SRB->Cdb[0];
+	*IsRead = 0;
+	Offset.QuadPart = 0;
+	CDB = (PCDB)SRB->Cdb;
+	Opcode = SRB->Function;
 
 	switch (Opcode)
 	{
 	case SCSIOP_READ6:
 	case SCSIOP_WRITE6:
-	{
-		struct _CDB6READWRITE* CDB = (struct _CDB6READWRITE*)&SRB->Cdb;
-
 		Offset.HighPart = 0;
 		Offset.LowPart =
-			CDB->LogicalBlockLsb |
-			CDB->LogicalBlockMsb0 << 8 |
-			CDB->LogicalBlockMsb1 << 16;
-		*Length = CDB->TransferBlocks;
-	}
+			CDB->CDB6READWRITE.LogicalBlockLsb |
+			CDB->CDB6READWRITE.LogicalBlockMsb0 << 8 |
+			CDB->CDB6READWRITE.LogicalBlockMsb1 << 16;
+		*Length = CDB->CDB6READWRITE.TransferBlocks;
+		break;
 	case SCSIOP_READ:
 	case SCSIOP_WRITE:
-	{
-		struct _CDB10*	CDB = (struct _CDB10*)&SRB->Cdb;
-
 		Offset.HighPart = 0;
 		Offset.LowPart =
-			CDB->LogicalBlockByte0 << 24 |
-			CDB->LogicalBlockByte1 << 16 |
-			CDB->LogicalBlockByte2 << 8 |
-			CDB->LogicalBlockByte3;
+			CDB->CDB10.LogicalBlockByte0 << 24 |
+			CDB->CDB10.LogicalBlockByte1 << 16 |
+			CDB->CDB10.LogicalBlockByte2 << 8 |
+			CDB->CDB10.LogicalBlockByte3;
 		*Length =
-			CDB->TransferBlocksLsb |
-			CDB->TransferBlocksMsb << 8;
+			CDB->CDB10.TransferBlocksLsb |
+			CDB->CDB10.TransferBlocksMsb << 8;
 		break;
-	}
 	case SCSIOP_READ12:
 	case SCSIOP_WRITE12:
-	{
-		struct _CDB12*	CDB = (struct _CDB12*)&SRB->Cdb;
-
 		Offset.HighPart = 0;
 		Offset.LowPart =
-			CDB->LogicalBlock[3] |
-			CDB->LogicalBlock[2] << 8 |
-			CDB->LogicalBlock[1] << 16 |
-			CDB->LogicalBlock[0] << 24;
+			CDB->CDB12.LogicalBlock[3] |
+			CDB->CDB12.LogicalBlock[2] << 8 |
+			CDB->CDB12.LogicalBlock[1] << 16 |
+			CDB->CDB12.LogicalBlock[0] << 24;
 		*Length =
-			CDB->TransferLength[3] |
-			CDB->TransferLength[2] << 8 |
-			CDB->TransferLength[1] << 16 |
-			CDB->TransferLength[0] << 24;
+			CDB->CDB12.TransferLength[3] |
+			CDB->CDB12.TransferLength[2] << 8 |
+			CDB->CDB12.TransferLength[1] << 16 |
+			CDB->CDB12.TransferLength[0] << 24;
 		break;
-	}
 	case SCSIOP_READ16:
 	case SCSIOP_WRITE16:
-	{
-		struct _CDB16*	CDB = (struct _CDB16*)&SRB->Cdb;
-
 		Offset.HighPart =
-			CDB->LogicalBlock[3] |
-			CDB->LogicalBlock[2] << 8 |
-			CDB->LogicalBlock[1] << 16 |
-			CDB->LogicalBlock[0] << 24;
+			CDB->CDB16.LogicalBlock[3] |
+			CDB->CDB16.LogicalBlock[2] << 8 |
+			CDB->CDB16.LogicalBlock[1] << 16 |
+			CDB->CDB16.LogicalBlock[0] << 24;
 		Offset.LowPart =
-			CDB->LogicalBlock[7] |
-			CDB->LogicalBlock[6] << 8 |
-			CDB->LogicalBlock[5] << 16 |
-			CDB->LogicalBlock[4] << 24;
+			CDB->CDB16.LogicalBlock[7] |
+			CDB->CDB16.LogicalBlock[6] << 8 |
+			CDB->CDB16.LogicalBlock[5] << 16 |
+			CDB->CDB16.LogicalBlock[4] << 24;
 		*Length =
-			CDB->TransferLength[3] |
-			CDB->TransferLength[2] << 8 |
-			CDB->TransferLength[1] << 16 |
-			CDB->TransferLength[0] << 24;
+			CDB->CDB16.TransferLength[3] |
+			CDB->CDB16.TransferLength[2] << 8 |
+			CDB->CDB16.TransferLength[1] << 16 |
+			CDB->CDB16.TransferLength[0] << 24;
 		break;
-	}
 	}
 	*LBA = Offset.QuadPart;
 

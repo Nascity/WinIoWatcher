@@ -69,9 +69,9 @@ wmain(
 		ReadLog(&log);
 
 		wprintf(
-			L"%lld,%lld,%lld,%d",
+			L"%lld,%lld,%lld,%d\n",
 			log.Time, log.LBA,
-			log.Length, (INT)log.IsRead
+			log.Length, (INT)log.IsRead & 0x1
 		);
 
 		WriteLog(&log);
